@@ -1,5 +1,7 @@
 # svgc
 
+[![crates.io](https://img.shields.io/crates/v/svgc)](https://crates.io/crates/svgc)
+
 Rust version of the [SvgCompress](https://github.com/pasabanov/SvgCompress/) tool.
 
 ## Description
@@ -8,24 +10,27 @@ Rust version of the [SvgCompress](https://github.com/pasabanov/SvgCompress/) too
 
 ## Installation
 
-1. **Clone the repository:**
+#### Dependencies
 
-	```sh
-	git clone https://github.com/pasabanov/svgc
-	cd svgc
-	```
+[Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) needs to be installed in order to install or build the utility.
 
-2. **Build:**
+(Optional) If you want to use `--svgo` option, install [SVGO](https://github.com/svg/svgo) as well.
 
-	```sh
-    cargo build --profile release
-	```
+### With Cargo (recommended):
 
-   The built file will be located in the `target/release` directory.
+```sh
+cargo install svgc
+```
 
-3. **(Optional) If you want to use `--svgo` option, make sure [SVGO](https://github.com/svg/svgo) is installed.**
+### From GitHub (build yourself):
 
-Note that the [gzip](https://www.gnu.org/software/gzip/) utility is built into the executable and does not need to be installed on the system.
+```sh
+git clone https://github.com/pasabanov/svgc
+cd svgc
+cargo build --profile release
+```
+
+The built file will be located in the `target/release` directory.
 
 ## Usage
 

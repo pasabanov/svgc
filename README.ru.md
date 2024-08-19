@@ -1,5 +1,7 @@
 # svgc
 
+[![crates.io](https://img.shields.io/crates/v/svgc)](https://crates.io/crates/svgc)
+
 Версия утилиты [SvgCompress](https://github.com/pasabanov/SvgCompress/) на Rust.
 
 ## Описание
@@ -8,24 +10,27 @@
 
 ## Установка
 
-1. **Клонирование репозитория:**
+#### Зависимости
 
-	```sh
-	git clone https://github.com/pasabanov/svgc
-	cd svgc
-	```
+Для установки или сборки утилиты необходимо установить [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html).
 
-2. **Сборка:**
+(Опционально) Если вы хотите использовать опцию `--svgo`, установите также [SVGO](https://github.com/svg/svgo).
 
-	```sh
-    cargo build --profile release
-	```
+### С помощью Cargo (рекомендуется):
+
+```sh
+cargo install svgc
+```
+
+### Из GitHub (самостоятельная сборка):
+
+```sh
+git clone https://github.com/pasabanov/svgc
+cd svgc
+cargo build --profile release
+```
  
-	Собранный файл будет находиться в директории `target/release`.
-
-3. **(Опционально) Если вы хотите использовать опцию `--svgo`, убедитесь, что [SVGO](https://github.com/svg/svgo) установлен.**
-
-Обратите внимание, что утилита [gzip](https://www.gnu.org/software/gzip/) встроена в исполняемый файл и не требует установки в системе.
+Собранный файл будет находиться в директории `target/release`.
 
 ## Использование
 
