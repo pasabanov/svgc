@@ -48,7 +48,7 @@ svgc [options] paths
 `-f`, `--remove-fill` Remove `fill="..."` attributes  
 `-o`, `--svgo` Use [SVGO](https://github.com/svg/svgo) if it exists in the system  
 `-z`, `--svgz` Compress to [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) format with [gzip](https://www.gnu.org/software/gzip/) utility after processing  
-`-n`, `--no-default` Do not perform default optimizations (in case you only want to use [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) or both)
+`-n`, `--no-default` Do not perform default optimizations (in case you only want to use [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) or both)  
 `-B`, `--no-backup` Do not create backup (.bak) files
 
 ## Examples
