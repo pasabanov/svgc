@@ -44,6 +44,7 @@ svgc [options] paths
 `-o`, `--svgo` Использовать [SVGO](https://github.com/svg/svgo), если он установлен в системе  
 `-z`, `--svgz` Сжать в формат [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) с помощью утилиты [gzip](https://www.gnu.org/software/gzip/) после обработки  
 `-n`, `--no-default` Не выполнять оптимизаций по умолчанию (если вы хотите использовать только [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) или оба)
+`-B`, `--no-backup` Не создавать файлы резервных копий (.bak)
 
 ## Примеры
 1. Сжать один SVG-файл:
