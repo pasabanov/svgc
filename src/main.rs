@@ -31,8 +31,15 @@ use svgz::compress_to_svgz;
 use files::find_svg_files;
 
 fn main() -> io::Result<()> {
-	let matches = Command::new("SVG Compressor")
-		.version("0.1.4")
+	let matches = Command::new("svgc")
+		.version("0.1.5")
+		.long_version(
+			"0.1.5\n\
+			Copyright (C) 2024 Petr Alexandrovich Sabanov.\n\
+			License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n\
+			This is free software: you are free to change and redistribute it.\n\
+			There is NO WARRANTY, to the extent permitted by law."
+		)
 		.about("Compress SVG files by removing unnecessary whitespace, comments, metadata, and some other data.")
 		.arg(Arg::new("paths").help("List of SVG files or directories or SVG files to compress")
 			.required(true)
