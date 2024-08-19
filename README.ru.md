@@ -1,18 +1,18 @@
-# SvgCompress
+# svgc
 
 Версия утилиты [SvgCompress](https://github.com/pasabanov/SvgCompress/) на Rust.
 
 ## Описание
 
-`SvgCompress` — это инструмент для сжатия SVG-файлов путём удаления ненужных пробелов, комментариев, метаданных и некоторых других данных. Также поддерживается оптимизация с помощью [SVGO](https://github.com/svg/svgo) и сжатие в [SVGZ](https://ru.wikipedia.org/wiki/SVG#SVGZ). Утилита помогает уменьшить размер файла, очистить SVG-файлы для большей производительности и подготовить их к выпуску.
+`svgc` — это инструмент для сжатия SVG-файлов путём удаления ненужных пробелов, комментариев, метаданных и некоторых других данных. Также поддерживается оптимизация с помощью [SVGO](https://github.com/svg/svgo) и сжатие в [SVGZ](https://ru.wikipedia.org/wiki/SVG#SVGZ). Утилита помогает уменьшить размер файла, очистить SVG-файлы для большей производительности и подготовить их к выпуску.
 
 ## Установка
 
 1. **Клонирование репозитория:**
 
 	```sh
-	git clone https://github.com/pasabanov/SvgCompress-rs
-	cd SvgCompress-rs
+	git clone https://github.com/pasabanov/svgc
+	cd svgc
 	```
 
 2. **Сборка:**
@@ -32,7 +32,7 @@
 Чтобы сжать SVG-файлы, выполните скрипт с помощью следующей команды:
 
 ```sh
-SvgCompress-rs [options] paths
+svgc [options] paths
 ```
 
 ## Опции
@@ -48,37 +48,39 @@ SvgCompress-rs [options] paths
 ## Примеры
 1. Сжать один SVG-файл:
 	```sh
-	SvgCompress-rs my-icon.svg
+	svgc my-icon.svg
 	```
 2. Сжать все SVG-файлы в указанных директориях и файлах:
 	```sh
-	SvgCompress-rs my-icons-directory1 my-icon.svg directory2 icon2.svg
+	svgc my-icons-directory1 my-icon.svg directory2 icon2.svg
 	```
 3. Сжать все SVG-файлы в директории и её поддиректориях:
 	```sh
-	SvgCompress-rs -r my-icons-directory
+	svgc -r my-icons-directory
    ```
 4. Сжать SVG-файл и удалить все атрибуты `fill="..."` (сделать картинку моноцветной):
 	```sh
-	SvgCompress-rs -f my-icon.svg
+	svgc -f my-icon.svg
 	```
 5. Сжать все SVG-файлы в директории и её поддиректориях, удаляя атрибуты `fill`, затем оптимизировать с помощью SVGO, затем сжать в .svgz с помощью gzip:
 	```sh
-	SvgCompress-rs -rfoz my-icons-directory
+	svgc -rfoz my-icons-directory
 	```
 
 ## Лицензия
 
-This project is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-You are free to:
-- Share — copy and redistribute the material in any medium or format
-- Adapt — remix, transform, and build upon the material
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-Under the following terms:
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-
-For more details, see the full license at https://creativecommons.org/licenses/by/4.0/
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Авторские права
 2024 Пётр Александрович Сабанов
