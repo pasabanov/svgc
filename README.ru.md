@@ -52,6 +52,7 @@ svgc [options] paths
 `-B`, `--no-backup` Не создавать файлы резервных копий (.bak)
 
 ## Примеры
+
 1. Сжать один SVG-файл:
 	```sh
 	svgc my-icon.svg
@@ -71,6 +72,12 @@ svgc [options] paths
 5. Сжать все SVG-файлы в директории и её поддиректориях, удаляя атрибуты `fill`, затем оптимизировать с помощью SVGO, затем сжать в .svgz с помощью gzip:
 	```sh
 	svgc -rfoz my-icons-directory
+	```
+
+6.  Скопировать SVG-файлы этапа разработки и оптимизировать их для выпуска, выполнив те же шаги, что и в предыдущем примере, но не создавая файлы резервных копий:
+	```sh
+	cp -r resources/images/svg out/resources/images/svg
+	svgc -Brfoz out/resources/images/svg
 	```
 
 ## Лицензия

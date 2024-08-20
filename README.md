@@ -52,6 +52,7 @@ svgc [options] paths
 `-B`, `--no-backup` Do not create backup (.bak) files
 
 ## Examples
+
 1. Compress a single SVG file:
 	```sh
 	svgc my-icon.svg
@@ -71,6 +72,12 @@ svgc [options] paths
 5. Compress all SVG files in a directory and all subdirectories, removing `fill` attributes, then optimize with SVGO, then compress to .svgz with gzip:
 	```sh
 	svgc -rfoz my-icons-directory
+	```
+
+6. Copy development SVG files and optimize them for production by performing the same steps as in the previous example, but without creating backup files:
+	```sh
+	cp -r resources/images/svg out/resources/images/svg
+	svgc -Brfoz out/resources/images/svg
 	```
 
 ## License
