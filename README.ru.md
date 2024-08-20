@@ -1,6 +1,6 @@
 # svgc
 
-[![crates.io](https://img.shields.io/crates/v/svgc)](https://crates.io/crates/svgc)
+[![crates.io](https://img.shields.io/crates/v/svgc?style=for-the-badge)](https://crates.io/crates/svgc)
 
 Версия утилиты [SvgCompress](https://github.com/pasabanov/SvgCompress/) на Rust.
 
@@ -96,4 +96,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Авторские права
+
 2024 Пётр Александрович Сабанов
+
+## Метрики
+
+![repo size](https://img.shields.io/github/repo-size/pasabanov/svgc?color=6e54bb)
+![crate size](https://img.shields.io/crates/size/svgc?label=crate%20size&color=orange)
