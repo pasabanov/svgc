@@ -7,6 +7,23 @@ description = "`svgc` (previously SvgCompress) is a tool for compressing SVG fil
 repository = "https://github.com/pasabanov/svgc"
 license = "GPL-3.0-or-later"
 
+exclude = [
+	"/.github/",
+	"/.gitlab/",
+	"/.idea/",
+	"/.vscode/",
+	"/doc/",
+	"/docs/",
+	"/example/",
+	"/examples/",
+	"/test/",
+	"/tests/",
+	"/.editorconfig",
+	"/.gitignore",
+	"/.rustfmt.toml",
+	"/rustfmt.toml"
+]
+
 [dependencies]
 clap = "4.5.16"
 flate2 = "1.0.31"
