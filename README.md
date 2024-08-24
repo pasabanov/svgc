@@ -46,9 +46,9 @@ svgc [options] paths
 `-v`, `--version` Show the version of the program  
 `-r`, `--recursive` Recursively process directories  
 `-f`, `--remove-fill` Remove `fill="..."` attributes  
-`-o`, `--svgo` Use [SVGO](https://github.com/svg/svgo) if it is installed on the system  
-`-z`, `--svgz` Compress to [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) format after optimization  
-`-n`, `--no-default` Do not perform default optimizations (if you only want to use [SVGO](https://github.com/svg/svgo), compress to .svgz, or perform both operations)  
+`-o`, `--svgo` Use SVGO if it is installed on the system  
+`-z`, `--svgz` Compress to .svgz format after optimization  
+`-n`, `--no-default` Do not perform default optimizations (if you only want to use SVGO, compress to .svgz, or perform both operations)  
 `-q`, `--quiet` Only output error messages, not regular status messages
 
 ## Examples
