@@ -43,13 +43,13 @@ svgc [options] paths
 ## Options
 
 `-h`, `--help` Show this help message and exit  
-`-v`, `--version` Show the version of the script  
+`-v`, `--version` Show the version of the program  
 `-r`, `--recursive` Recursively process directories  
 `-f`, `--remove-fill` Remove `fill="..."` attributes  
-`-o`, `--svgo` Use [SVGO](https://github.com/svg/svgo) if it exists in the system  
-`-z`, `--svgz` Compress to [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) format with [gzip](https://www.gnu.org/software/gzip/) utility after processing  
+`-o`, `--svgo` Use [SVGO](https://github.com/svg/svgo) if it is installed on the system  
+`-z`, `--svgz` Compress to [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) format after optimization  
 `-n`, `--no-default` Do not perform default optimizations (in case you only want to use [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) or both)  
-`-B`, `--no-backup` Do not create backup (.bak) files
+`-q`, `--quiet` Only output error messages, not regular status messages
 
 ## Examples
 
@@ -72,12 +72,6 @@ svgc [options] paths
 5. Compress all SVG files in a directory and all subdirectories, removing `fill` attributes, then optimize with SVGO, then compress to .svgz with gzip:
 	```sh
 	svgc -rfoz my-icons-directory
-	```
-
-6. Copy development SVG files and optimize them for production by performing the same steps as in the previous example, but without creating backup files:
-	```sh
-	cp -r resources/images/svg out/resources/images/svg
-	svgc -Brfoz out/resources/images/svg
 	```
 
 ## License

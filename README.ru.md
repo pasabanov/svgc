@@ -43,13 +43,13 @@ svgc [options] paths
 ## Опции
 
 `-h`, `--help` Показать это сообщение и выйти  
-`-v`, `--version` Показать версию скрипта  
+`-v`, `--version` Показать версию программы  
 `-r`, `--recursive` Обрабатывать директории рекурсивно  
-`-f`, `--remove-fill` Удалить атрибуты `fill="..."`   
+`-f`, `--remove-fill` Удалить атрибуты `fill="..."`  
 `-o`, `--svgo` Использовать [SVGO](https://github.com/svg/svgo), если он установлен в системе  
-`-z`, `--svgz` Сжать в формат [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) с помощью утилиты [gzip](https://www.gnu.org/software/gzip/) после обработки  
+`-z`, `--svgz` Сжать в формат [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) после оптимизации  
 `-n`, `--no-default` Не выполнять оптимизаций по умолчанию (если вы хотите использовать только [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) или оба)  
-`-B`, `--no-backup` Не создавать файлы резервных копий (.bak)
+`-q`, `--quiet` Выводить только сообщения об ошибках, не выводить обычные сообщения
 
 ## Примеры
 
@@ -72,12 +72,6 @@ svgc [options] paths
 5. Сжать все SVG-файлы в директории и её поддиректориях, удаляя атрибуты `fill`, затем оптимизировать с помощью SVGO, затем сжать в .svgz с помощью gzip:
 	```sh
 	svgc -rfoz my-icons-directory
-	```
-
-6.  Скопировать SVG-файлы этапа разработки и оптимизировать их для выпуска, выполнив те же шаги, что и в предыдущем примере, но не создавая файлы резервных копий:
-	```sh
-	cp -r resources/images/svg out/resources/images/svg
-	svgc -Brfoz out/resources/images/svg
 	```
 
 ## Лицензия
