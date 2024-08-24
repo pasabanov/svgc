@@ -48,7 +48,7 @@ svgc [options] paths
 `-f`, `--remove-fill` Удалить атрибуты `fill="..."`  
 `-o`, `--svgo` Использовать [SVGO](https://github.com/svg/svgo), если он установлен в системе  
 `-z`, `--svgz` Сжать в формат [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) после оптимизации  
-`-n`, `--no-default` Не выполнять оптимизаций по умолчанию (если вы хотите использовать только [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) или оба)  
+`-n`, `--no-default` Не выполнять оптимизаций по умолчанию (если вы хотите только использовать [SVGO](https://github.com/svg/svgo), сжать в .svgz или выполнить оба действия)  
 `-q`, `--quiet` Выводить только сообщения об ошибках, не выводить обычные сообщения
 
 ## Примеры
@@ -69,7 +69,7 @@ svgc [options] paths
 	```sh
 	svgc -f my-icon.svg
 	```
-5. Сжать все SVG-файлы в директории и её поддиректориях, удаляя атрибуты `fill`, затем оптимизировать с помощью SVGO, затем сжать в .svgz с помощью gzip:
+5. Сжать все SVG-файлы в директории и её поддиректориях, удаляя атрибуты `fill`, затем оптимизировать с помощью SVGO, затем сжать в .svgz:
 	```sh
 	svgc -rfoz my-icons-directory
 	```

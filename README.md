@@ -48,7 +48,7 @@ svgc [options] paths
 `-f`, `--remove-fill` Remove `fill="..."` attributes  
 `-o`, `--svgo` Use [SVGO](https://github.com/svg/svgo) if it is installed on the system  
 `-z`, `--svgz` Compress to [.svgz](https://ru.wikipedia.org/wiki/SVG#SVGZ) format after optimization  
-`-n`, `--no-default` Do not perform default optimizations (in case you only want to use [SVGO](https://github.com/svg/svgo), [gzip](https://www.gnu.org/software/gzip/) or both)  
+`-n`, `--no-default` Do not perform default optimizations (if you only want to use [SVGO](https://github.com/svg/svgo), compress to .svgz, or perform both operations)  
 `-q`, `--quiet` Only output error messages, not regular status messages
 
 ## Examples
@@ -69,7 +69,7 @@ svgc [options] paths
 	```sh
 	svgc -f my-icon.svg
 	```
-5. Compress all SVG files in a directory and all subdirectories, removing `fill` attributes, then optimize with SVGO, then compress to .svgz with gzip:
+5. Compress all SVG files in a directory and all subdirectories, removing `fill` attributes, then optimize with SVGO, then compress to .svgz:
 	```sh
 	svgc -rfoz my-icons-directory
 	```
