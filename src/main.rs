@@ -16,7 +16,7 @@
 
 use std::collections::HashSet;
 use std::fs;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{Arg, ArgAction, ArgAction::SetTrue, Command};

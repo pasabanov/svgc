@@ -15,7 +15,8 @@
 //! along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::{env, fs, io};
-use std::path::{PathBuf};
+use std::collections::HashSet;
+use std::path::PathBuf;
 use chrono::Local;
 
 fn unique_timestamp() -> String {
@@ -178,10 +179,10 @@ fn copy_dir(src: &PathBuf, dst: &PathBuf) -> io::Result<()> {
 
 pub fn find_svg_files(paths: &[PathBuf], recursive: bool) -> io::Result<Vec<PathBuf>> {
 
-	fn find_svg_files0(vec_to_append: &mut Vec<PathBuf>, path: &PathBuf, recursive: bool) -> io::Result<()> {
+	fn find_append_svg_files(container: &mut HashSet<PathBuf>, path: &PathBuf, recursive: bool) -> io::Result<()> {
 		if path.is_file() {
 			if path.extension().and_then(|e| e.to_str()) == Some("svg") {
-				vec_to_append.push(path.clone());
+				container.insert(path.clone());
 			}
 			return Ok(())
 		} else if !path.is_dir() {
@@ -191,15 +192,18 @@ pub fn find_svg_files(paths: &[PathBuf], recursive: bool) -> io::Result<Vec<Path
 			let entry = entry?;
 			let path = entry.path();
 			if path.is_file() || recursive && path.is_dir() {
-				find_svg_files0(vec_to_append, &path, recursive)?;
+				find_append_svg_files(container, &path, recursive)?;
 			}
 		}
 		Ok(())
 	}
 
-	let mut svg_files = Vec::new();
+	let mut svg_files = HashSet::new();
 	for temp_path in paths {
-		find_svg_files0(&mut svg_files, &temp_path, recursive)?;
+		find_append_svg_files(&mut svg_files, &temp_path, recursive)?;
 	}
+
+	let svg_files = svg_files.into_iter().collect();
+
 	Ok(svg_files)
 }
