@@ -161,7 +161,10 @@ impl TempBackupStorage {
 	}
 
 	pub fn cleanup(&mut self) -> io::Result<()> {
-		fs::remove_dir_all(&self.temp_dir)
+		if self.temp_dir.try_exists()? {
+			fs::remove_dir_all(&self.temp_dir)?;
+		}
+		Ok(())
 	}
 }
 
@@ -219,4 +222,38 @@ pub fn find_svg_files(paths: &[PathBuf], recursive: bool) -> io::Result<Vec<Path
 	let svg_files = svg_files.into_iter().collect();
 
 	Ok(svg_files)
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_unique_timestamp() {
+		assert_ne!(unique_timestamp(), unique_timestamp());
+	}
+
+	#[test]
+	fn test_generate_temp_dir_name() {
+		assert_ne!(generate_temp_dir_name(), generate_temp_dir_name());
+	}
+	
+	#[test]
+	#[allow(non_snake_case)]
+	fn test_TempBackupStorage() {
+		let temp_backup_storage = TempBackupStorage::new(&vec![]);
+		assert!(temp_backup_storage.is_ok());
+		let mut temp_backup_storage = temp_backup_storage.unwrap();
+		assert!(temp_backup_storage.temp_dir().exists());
+		assert!(temp_backup_storage.cleanup().is_ok());
+		assert!(!temp_backup_storage.temp_dir().exists());
+
+		let temp_backup_storage = TempBackupStorage::new(&vec![]);
+		assert!(temp_backup_storage.is_ok());
+		let temp_backup_storage = temp_backup_storage.unwrap();
+		let temp_dir = temp_backup_storage.temp_dir().clone();
+		assert!(temp_dir.exists());
+		drop(temp_backup_storage);
+		assert!(!temp_dir.exists());
+	}
 }
