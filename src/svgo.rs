@@ -18,7 +18,7 @@ use std::io;
 use std::path::PathBuf;
 use std::process;
 
-pub fn run_svgo(svg_files: &Vec<PathBuf>, svgo_path: &str) -> io::Result<()> {
+pub fn run_svgo(svg_files: &Vec<PathBuf>, svgo_path: &PathBuf) -> io::Result<()> {
 	let mut command = process::Command::new(svgo_path);
 	command.args(&["-q"]).args(svg_files);
 	command.status()?;

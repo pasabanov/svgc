@@ -117,7 +117,7 @@ fn main() -> ExitCode {
 
 	let svgo_path = if use_svgo {
 		match which::which("svgo") {
-			Ok(path) => Some(path.display().to_string()),
+			Ok(path) => Some(path),
 			Err(_) => {
 				eprintln!("{}", t!("error-svgo"));
 				if !quiet { println!("{}", t!("your-files-were-not-modified")); }
