@@ -29,8 +29,9 @@ const DEFAULT_LOCALE: &str = "en";
 /// primary language, calculates a score based on how closely each available locale matches the user
 /// locale.  
 /// The score calculation gives higher priority to matching more significant parts of the locale
-/// (i.e., earlier segments in the locale string). If a subtag is empty, it is considered to match
-/// equally well with any subtag from the same category.
+/// (i.e., earlier segments in the locale string).  
+/// If a subtag is empty, it is considered to match equally well with any subtag from the same
+/// category.
 ///
 /// If multiple available locales have the same score, the function selects the one that appears
 /// earlier in the list of available locales.  
