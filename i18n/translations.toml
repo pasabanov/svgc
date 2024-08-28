@@ -1,0 +1,153 @@
+_version = 2
+
+[about]
+en = '''
+Compress SVG files by removing unnecessary whitespace, comments, metadata, and some other redundant data.
+Optionally, you can use SVGO for additional optimization, and compress the files to .svgz format.
+
+This program DOES NOT create backups (outside of the program's lifetime) if it runs successfully, so use it carefully!
+If an error occurs, backups of the original files will be saved.'''
+ru = '''
+Сжимает SVG-файлы, удаляя ненужные пробелы, комментарии, метаданные и некоторые другие избыточные данные.
+При желании можно использовать SVGO для дополнительной оптимизации, а также сжать файлы в формат .svgz.
+
+Эта программа НЕ СОЗДАЁТ резервные копии (вне времени работы программы), если выполнение прошло успешно, поэтому используйте её осторожно!
+В случае ошибки резервные копии оригинальных файлов будут сохранены.'''
+
+[version]
+en = '0.1.7'
+ru = '0.1.7'
+
+[long-version]
+en = '''
+0.1.7
+Copyright (C) 2024 Petr Alexandrovich Sabanov.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.'''
+ru = '''
+0.1.7
+Авторское право (C) 2024 Пётр Александрович Сабанов.
+Лицензия GPLv3+: GNU GPL версии 3 или новее <https://gnu.org/licenses/gpl.html>.
+Это свободное ПО: вы можете изменять и распространять его.
+Нет НИКАКИХ ГАРАНТИЙ в пределах действующего законодательства.'''
+
+[paths-help]
+en = 'List of SVG files or directories containing SVG files to compress'
+ru = 'Список SVG файлов или директорий, содержащих SVG файлы, для сжатия'
+
+[paths-value-name]
+en = 'PATHS'
+ru = 'ПУТИ'
+
+[recursive-help]
+en = 'Recursively process directories'
+ru = 'Рекурсивно обрабатывать директории'
+
+[remove-fill-help]
+en = 'Remove fill="..." attributes'
+ru = 'Удалить атрибуты fill="..."'
+
+[svgo-help]
+en = 'Use SVGO if it is installed on the system'
+ru = 'Использовать SVGO, если он установлен в системе'
+
+[svgz-help]
+en = 'Compress to .svgz format after optimization'
+ru = 'Сжать в формат .svgz после оптимизации'
+
+[no-default-help]
+en = 'Do not perform default optimizations'
+ru = 'Не выполнять стандартные оптимизации'
+
+[quiet-help]
+en = 'Only output error messages, not regular status messages'
+ru = 'Выводить только сообщения об ошибках, без обычных сообщений о статусе'
+
+[version-help]
+en = 'Print version'
+ru = 'Показать версию'
+
+[help-help]
+en = 'Print help'
+ru = 'Показать помощь'
+
+[path-not-svg-or-dir]
+en = 'The path "%{path}" is not a valid SVG file or directory.'
+ru = 'Путь "%{path}" не является действительным SVG файлом или директорией.'
+
+[path-not-exist-or-no-access]
+en = 'The path "%{path}" does not exist or cannot be accessed. Error: %{error}'
+ru = 'Путь "%{path}" не существует или недоступен. Ошибка: %{error}'
+
+[no-action-specified-files-not-modified]
+en = 'No actions specified. Your files were not modified.'
+ru = 'Не указаны действия. Ваши файлы не были изменены.'
+
+[type-svg-help-for-more-information]
+en = "Type 'svgc --help' for more information."
+ru = "Введите 'svgc --help' для получения дополнительной информации."
+
+[error-svgo]
+en = 'Error: SVGO is not installed.'
+ru = 'Ошибка: SVGO не установлен.'
+
+[your-files-were-not-modified]
+en = "Your files weren't modified."
+ru = "Ваши файлы не были изменены."
+
+[error-finding-svg-files]
+en = 'Error finding SVG files: %{error}'
+ru = 'Ошибка при поиске SVG файлов: %{error}'
+
+[error-creating-temporary-backup-storage]
+en = 'Error creating temporary backup storage: %{error}'
+ru = 'Ошибка при создании временного хранилища резервных копий: %{error}'
+
+[error-optimizing-files]
+en = 'Error optimizing files: %{error}'
+ru = 'Ошибка при оптимизации файлов: %{error}'
+
+[error-optimizing-files-with-svgo]
+en = 'Error optimizing files with SVGO: %{error}'
+ru = 'Ошибка при оптимизации файлов с помощью SVGO: %{error}'
+
+[error-compressing-files]
+en = 'Error compressing files to .svgz format: %{error}'
+ru = 'Ошибка при сжатии файлов в формат .svgz: %{error}'
+
+[files-successfully-compressed]
+en = 'Files were successfully compressed.'
+ru = 'Файлы успешно сжаты.'
+
+[error-restoring-files]
+en = "Error restoring files: %{error}.\nBackups are located in %{dir} directory."
+ru = "Ошибка восстановления файлов: %{error}.\nРезервные копии находятся в директории %{dir}."
+
+[files-restored]
+en = 'Your files were restored.'
+ru = 'Ваши файлы восстановлены.'
+
+[could-not-create-temp-dir-in-dir]
+en = "Couldn't create a temporary directory in %{dir}.%{suffix}"
+ru = "Не удалось создать временную директорию в %{dir}.%{suffix}"
+
+[could-not-create-temporary-directory]
+en = 'Could not create a temporary directory'
+ru = 'Не удалось создать временную директорию'
+
+[could-not-get-file-name]
+en = 'Could not get file "%{path}" name'
+ru = 'Не удалось получить имя файла "%{path}"'
+
+[could-not-get-file-ext]
+en = 'Could not get file "%{path}" extension'
+ru = 'Не удалось получить расширение файла "%{path}"'
+
+[failed-to-delete-temp-dir]
+en = 'Failed to delete temporary directory %{dir}: %{error}'
+ru = 'Не удалось удалить временную директорию %{dir}: %{error}'
+
+[warning-could-not-get-parent-dir]
+en = 'Warning! Could not get parent directory of file %{path}'
+ru = 'Предупреждение! Не удалось получить родительскую директорию файла %{path}'

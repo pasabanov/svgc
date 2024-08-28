@@ -29,7 +29,7 @@ git clone https://github.com/pasabanov/svgc
 cd svgc
 cargo build --profile release
 ```
- 
+
 Собранный файл будет находиться в директории `target/release`.
 
 ## Использование

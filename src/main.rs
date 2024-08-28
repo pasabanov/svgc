@@ -20,51 +20,60 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{Arg, ArgAction, ArgAction::SetTrue, Command};
+use lazy_static::lazy_static;
+use rust_i18n::{i18n, t};
 
 mod default_opt;
 mod files;
 mod svgo;
 mod svgz;
+mod i18n;
 
 use default_opt::default_optimize_files;
 use files::TempBackupStorage;
 use svgo::run_svgo;
 use svgz::compress_to_svgz;
+use i18n::set_rust_i18n_locale;
+
+i18n!();
 
 fn main() -> ExitCode {
+	set_rust_i18n_locale();
+
+	lazy_static! { // need static variables for clap
+		static ref about            : Cow<'static, str> = t!("about");
+		static ref version          : Cow<'static, str> = t!("version");
+		static ref long_version     : Cow<'static, str> = t!("long-version");
+		static ref paths_help       : Cow<'static, str> = t!("paths-help");
+		static ref paths_value_name : Cow<'static, str> = t!("paths-value-name");
+	    static ref recursive_help   : Cow<'static, str> = t!("recursive-help");
+	    static ref remove_fill_help : Cow<'static, str> = t!("remove-fill-help");
+	    static ref svgo_help        : Cow<'static, str> = t!("svgo-help");
+	    static ref svgz_help        : Cow<'static, str> = t!("svgz-help");
+	    static ref no_default_help  : Cow<'static, str> = t!("no-default-help");
+	    static ref quiet_help       : Cow<'static, str> = t!("quiet-help");
+	    static ref version_help     : Cow<'static, str> = t!("version-help");
+	    static ref help_help        : Cow<'static, str> = t!("help-help");
+	}
+
 	let matches = Command::new("svgc")
-		.about("Compress SVG files by removing unnecessary whitespace, comments, metadata, and some other redundant data.\n\
-				Optionally, you can use SVGO for additional optimization, and compress the files to .svgz format.\n\
-				\n\
-				This program DOES NOT create backups (outside of the program's lifetime) if it runs successfully, so use it carefully!\n\
-				If an error occurs, backups of the original files will be saved.")
-		.version("0.1.6")
-		.long_version(
-			"0.1.6\n\
-			Copyright (C) 2024 Petr Alexandrovich Sabanov.\n\
-			License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n\
-			This is free software: you are free to change and redistribute it.\n\
-			There is NO WARRANTY, to the extent permitted by law."
-		)
-		.arg(Arg::new("paths").help("List of SVG files or directories containing SVG files to compress")
+		.about(&about[..])
+		.version(&version[..])
+		.long_version(&long_version[..])
+		.arg(Arg::new("paths").help(&paths_help[..])
+			.value_name(&paths_value_name[..])
 			.required(true)
 			.num_args(1..))
-		.arg(Arg::new("recursive")  .short('r').long("recursive")  .help("Recursively process directories")
-			.action(SetTrue))
-		.arg(Arg::new("remove-fill").short('f').long("remove-fill").help("Remove fill=\"...\" attributes")
-			.action(SetTrue))
-		.arg(Arg::new("svgo")       .short('o').long("svgo")       .help("Use SVGO if it is installed on the system")
-			.action(SetTrue))
-		.arg(Arg::new("svgz")       .short('z').long("svgz")       .help("Compress to .svgz format after optimization")
-			.action(SetTrue))
-		.arg(Arg::new("no-default") .short('n').long("no-default") .help("Do not perform default optimizations")
-			.action(SetTrue))
-		.arg(Arg::new("quiet")      .short('q').long("quiet")      .help("Only output error messages, not regular status messages")
-			.action(SetTrue))
+		.arg(Arg::new("recursive")  .short('r').long("recursive")  .help(&recursive_help[..])  .action(SetTrue))
+		.arg(Arg::new("remove-fill").short('f').long("remove-fill").help(&remove_fill_help[..]).action(SetTrue))
+		.arg(Arg::new("svgo")       .short('o').long("svgo")       .help(&svgo_help[..])       .action(SetTrue))
+		.arg(Arg::new("svgz")       .short('z').long("svgz")       .help(&svgz_help[..])       .action(SetTrue))
+		.arg(Arg::new("no-default") .short('n').long("no-default") .help(&no_default_help[..]) .action(SetTrue))
+		.arg(Arg::new("quiet")      .short('q').long("quiet")      .help(&quiet_help[..])      .action(SetTrue))
 		.disable_version_flag(true)
-		.arg(Arg::new("version")    .short('v').long("version")    .help("Print version").action(ArgAction::Version))
+		.arg(Arg::new("version")    .short('v').long("version")    .help(&version_help[..])    .action(ArgAction::Version))
 		.disable_help_flag(true)
-		.arg(Arg::new("help")       .short('h').long("help")       .help("Print help")   .action(ArgAction::Help))
+		.arg(Arg::new("help")       .short('h').long("help")       .help(&help_help[..])       .action(ArgAction::Help))
 		.get_matches();
 
 	let paths: Vec<PathBuf> =
@@ -78,12 +87,12 @@ fn main() -> ExitCode {
 						if canon.is_dir() || canon.is_file() && canon.extension().unwrap_or_default().eq("svg") {
 							Some(canon)
 						} else {
-							eprintln!("The path {} is not a valid SVG file or directory.", path.display());
+							eprintln!("{}", t!("path-not-svg-or-dir", path = path.display()));
 							None
 						}
 					}
 					Err(e) => {
-						eprintln!("The path {} does not exist or cannot be accessed. Error: {}", path.display(), e);
+						eprintln!("{}", t!("path-not-exist-or-no-access", path = path.display(), error = e));
 						None
 					}
 				}
@@ -100,8 +109,8 @@ fn main() -> ExitCode {
 
 	if no_default && !use_svgo && !compress_svgz {
 		if !quiet {
-			println!("No actions specified. Your files were not modified.");
-			println!("Type 'svgc --help' for more information.");
+			println!("{}", t!("no-action-specified-files-not-modified"));
+			println!("{}", t!("type-svg-help-for-more-information"));
 		}
 		return ExitCode::SUCCESS
 	}
@@ -110,8 +119,8 @@ fn main() -> ExitCode {
 		match which::which("svgo") {
 			Ok(path) => Some(path.display().to_string()),
 			Err(_) => {
-				eprintln!("Error: SVGO is not installed.");
-				if !quiet { println!("Your files weren't modified."); }
+				eprintln!("{}", t!("error-svgo"));
+				if !quiet { println!("{}", t!("your-files-were-not-modified")); }
 				return ExitCode::FAILURE
 			}
 		}
@@ -126,8 +135,8 @@ fn main() -> ExitCode {
 	let svg_files = match files::find_svg_files(&paths, recursive) {
 		Ok(files) => files,
 		Err(e) => {
-			eprintln!("Error finding svg files: {e}");
-			if !quiet { println!("Your files weren't modified."); }
+			eprintln!("{}", t!("error-finding-svg-files", error = e));
+			if !quiet { println!("{}", t!("your-files-were-not-modified")); }
 			return ExitCode::FAILURE
 		}
 	};
@@ -135,8 +144,8 @@ fn main() -> ExitCode {
 	let mut backup_storage = match TempBackupStorage::new(&svg_files) {
 		Ok(storage) => storage,
 		Err(e) => {
-			eprintln!("Error creating temporary backup storage: {e}");
-			if !quiet { println!("Your files weren't modified."); }
+			eprintln!("{}", t!("error-creating-temporary-backup-storage", error = e));
+			if !quiet { println!("{}", t!("your-files-were-not-modified")); }
 			return ExitCode::FAILURE
 		}
 	};
@@ -145,7 +154,7 @@ fn main() -> ExitCode {
 
 	if !no_default {
 		if let Err(e) = default_optimize_files(&svg_files, remove_fill) {
-			eprintln!("Error optimizing files: {e}");
+			eprintln!("{}", t!("error-optimizing-files", error = e));
 			try_to_copy_back(&mut backup_storage, quiet);
 			return ExitCode::FAILURE
 		}
@@ -153,7 +162,7 @@ fn main() -> ExitCode {
 
 	if use_svgo && svgo_path != None {
 		if let Err(e) = run_svgo(&svg_files, &svgo_path.unwrap()) {
-			eprintln!("Error optimizing files with SVGO: {e}");
+			eprintln!("{}", t!("error-optimizing-files-with-svgo", error = e));
 			try_to_copy_back(&mut backup_storage, quiet);
 			return ExitCode::FAILURE
 		};
@@ -161,7 +170,7 @@ fn main() -> ExitCode {
 
 	if compress_svgz {
 		if let Err(e) = compress_to_svgz(&svg_files) {
-			eprintln!("Error compressing files to .svgz format: {e}");
+			eprintln!("{}", t!("error-compressing-files", error = e));
 			try_to_copy_back(&mut backup_storage, quiet);
 			return ExitCode::FAILURE
 		}
@@ -170,7 +179,7 @@ fn main() -> ExitCode {
 	backup_storage.enable_auto_cleanup();
 
 	if !quiet {
-		println!("Files were successfully compressed.");
+		println!("{}", t!("files-successfully-compressed"));
 	}
 
 	ExitCode::SUCCESS
@@ -179,12 +188,12 @@ fn main() -> ExitCode {
 fn try_to_copy_back(temp_storage: &mut TempBackupStorage, quiet: bool) {
 	if let Err(e) = temp_storage.copy_back() {
 		temp_storage.disable_auto_cleanup();
-		eprintln!("Error restoring files: {}.\nBackups are located in {} directory.", e, temp_storage.temp_dir().display());
+		eprintln!("{}", t!("error-restoring-files", error = e, dir = temp_storage.temp_dir().display()));
 		return
 	} else {
 		temp_storage.enable_auto_cleanup();
 	}
 	if !quiet {
-		println!("Your files were restored.");
+		println!("{}", t!("files-restored"));
 	}
 }
