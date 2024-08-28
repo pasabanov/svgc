@@ -21,9 +21,7 @@ use std::process;
 pub fn run_svgo(svg_files: &Vec<PathBuf>, svgo_path: &str) -> io::Result<()> {
 	let mut command = process::Command::new(svgo_path);
 	command.args(&["-q"]).args(svg_files);
-	// Two times for additional optimization
-	if !command.status()?.success() || !command.status()?.success() {
-		eprintln!("Error during SVGO optimization.");
-	}
+	command.status()?;
+	command.status()?; // Second time for additional optimization
 	Ok(())
 }

@@ -18,6 +18,7 @@ use std::{env, fs, io};
 use std::collections::HashSet;
 use std::path::PathBuf;
 use chrono::Local;
+use rust_i18n::t;
 
 fn unique_timestamp() -> String {
 	Local::now().format("%Y-%m-%d_%H-%M-%S_%f").to_string()
@@ -52,10 +53,11 @@ pub fn create_temp_dir() -> Option<PathBuf> {
 			if let Ok(temp_dir) = try_create_temp_dir(&dir, &temp_dir_name) {
 				return Some(temp_dir);
 			}
-			eprintln!(
-				"Couldn't create a temporary directory in {}.{}",
-				dir.display(),
-				if i < directories.len() - 1 { " Trying next." } else { "" }
+			eprintln!("{}",
+				t!("could-not-create-temp-dir-in-dir",
+					dir = dir.display(),
+					suffix = if i < directories.len() - 1 { " Trying next." } else { "" }
+				)
 			);
 		}
 	}
@@ -73,34 +75,45 @@ pub struct TempBackupStorage {
 impl TempBackupStorage {
 
 	pub fn new(original_paths: &[PathBuf]) -> io::Result<Self> {
-
 		let temp_dir = create_temp_dir()
-			.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Could not create temporary directory"))?;
+			.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-create-temporary-directory")))?;
 
-		let mut paths = Vec::new();
-
-		for path in original_paths {
-			let temp_path = temp_dir.join(
-				format!(
-					"{}_{}.{}",
-					path.file_stem()
-						.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, format!("Could not get file {} name", path.display())))?
-						.to_string_lossy(),
-					unique_timestamp(),
-					path.extension()
-						.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, format!("Could not get file {} extension", path.display())))?
-						.to_string_lossy(),
-				)
-			);
-			if path.is_file() {
-				fs::copy(path, &temp_path)?;
-			} else if path.is_dir() {
-				copy_dir(path, &temp_path)?;
+		fn initialize_paths(original_paths: &[PathBuf], temp_dir: &PathBuf) -> io::Result<Vec<(PathBuf, PathBuf)>> {
+			let mut paths = Vec::new();
+			for path in original_paths {
+				let temp_path = temp_dir.join(
+					format!(
+						"{}_{}.{}",
+						path.file_stem()
+							.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-get-file-name", path = path.display())))?
+							.to_string_lossy(),
+						unique_timestamp(),
+						path.extension()
+							.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-get-file-ext", path = path.display())))?
+							.to_string_lossy(),
+					)
+				);
+				if path.is_file() {
+					fs::copy(path, &temp_path)?;
+				} else if path.is_dir() {
+					copy_dir(path, &temp_path)?;
+				}
+				paths.push((path.clone(), temp_path));
 			}
-			paths.push((path.clone(), temp_path));
+			Ok(paths)
 		}
 
-		Ok(Self { paths, temp_dir, auto_cleanup: true, })
+		match initialize_paths(original_paths, &temp_dir) {
+			Ok(paths) => {
+				Ok(Self { paths, temp_dir, auto_cleanup: true, })
+			}
+			Err(e) => {
+				if let Err(cleanup_error) = fs::remove_dir_all(&temp_dir) {
+					eprintln!("{}", t!("failed-to-delete-temp-dir", dir = temp_dir.display(), error = cleanup_error));
+				}
+				Err(e)
+			}
+		}
 	}
 
 	pub fn copy_back(&self) -> io::Result<()> {
@@ -108,7 +121,7 @@ impl TempBackupStorage {
 			if let Some(parent) = temp_bak_path.parent() {
 				fs::create_dir_all(parent)?;
 			} else {
-				eprintln!("Warning! Could not get parent directory of file {}", temp_bak_path.display());
+				eprintln!("{}", t!("warning-could-not-get-parent-dir", path = temp_bak_path.display()));
 			}
 			if temp_bak_path.is_file() {
 				fs::copy(temp_bak_path, orig_path)?;
@@ -156,7 +169,7 @@ impl Drop for TempBackupStorage {
 	fn drop(&mut self) {
 		if self.auto_cleanup {
 			if let Err(e) = self.cleanup() {
-				eprintln!("Failed to delete temporary directory {}: {}", self.temp_dir.display(), e);
+				eprintln!("{}", t!("failed-to-delete-temp-dir", dir = self.temp_dir.display(), error = e));
 			}
 		}
 	}
