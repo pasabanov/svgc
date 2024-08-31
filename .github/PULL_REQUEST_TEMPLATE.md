@@ -7,6 +7,9 @@ What kind of change does this PR introduce?
 - [ ] Documentation content changes
 - [ ] Other (please describe): _______
 
+### Describe changes:
+Please describe the changes you have made.
+
 ### What is the current behavior?
 Please describe the current behavior that you are modifying, or link to a relevant issue.
 
