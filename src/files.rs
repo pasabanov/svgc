@@ -14,11 +14,16 @@
 //! You should have received a copy of the GNU Affero General Public License
 //! along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::{env, fs, io};
-use std::collections::HashSet;
-use std::path::PathBuf;
+use std::{env, fs};
+use std::io::{self, IsTerminal};
+use std::path::{Path, PathBuf};
+
 use chrono::Local;
 use rust_i18n::t;
+
+use crate::default_opt::default_optimize;
+use crate::svgo::run_svgo;
+use crate::svgz::compress_to_svgz;
 
 fn unique_timestamp() -> String {
 	Local::now().format("%Y-%m-%d_%H-%M-%S_%f").to_string()
@@ -65,140 +70,235 @@ pub fn create_temp_dir() -> Option<PathBuf> {
 	None
 }
 
-pub struct TempBackupStorage {
-	paths: Vec<(PathBuf, PathBuf)>,
-	temp_dir: PathBuf,
-	auto_cleanup: bool,
+pub fn is_svg_file(path: &Path) -> bool {
+	path.is_file() && (path.extension() == Some("svg".as_ref()) || path.file_name() == Some(".svg".as_ref()))
+}
+
+struct SvgFile {
+	original_path: PathBuf,
+	backup_path: PathBuf,
+	result_path: Option<PathBuf>,
+	original_size: u64,
+	result_size: Option<u64>,
 }
 
 #[allow(dead_code)]
-impl TempBackupStorage {
-
-	pub fn new(original_paths: &[PathBuf]) -> io::Result<Self> {
-		let temp_dir = create_temp_dir()
-			.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-create-temporary-directory")))?;
-
-		fn initialize_paths(original_paths: &[PathBuf], temp_dir: &PathBuf) -> io::Result<Vec<(PathBuf, PathBuf)>> {
-			let mut paths = Vec::new();
-			for path in original_paths {
-				let temp_path = temp_dir.join(
-					format!(
-						"{}_{}.{}",
-						path.file_stem()
-							.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-get-file-name", path = path.display())))?
-							.to_string_lossy(),
-						unique_timestamp(),
-						path.extension()
-							.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-get-file-ext", path = path.display())))?
-							.to_string_lossy(),
-					)
-				);
-				if path.is_file() {
-					fs::copy(path, &temp_path)?;
-				} else if path.is_dir() {
-					copy_dir(path, &temp_path)?;
-				}
-				paths.push((path.clone(), temp_path));
-			}
-			Ok(paths)
+impl SvgFile {
+	pub fn new(original_path: PathBuf, backup_dir: &Path) -> io::Result<Self> {
+		if is_svg_file(&original_path) {
+			let original_size = original_path.metadata()?.len();
+			let backup_path = backup_dir.join(
+				format!(
+					"{}_{}.{}",
+					original_path.file_stem()
+						.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-get-file-name", path = original_path.display())))?
+						.to_string_lossy(),
+					unique_timestamp(),
+					original_path.extension()
+						.unwrap_or_default()
+						.to_string_lossy(),
+				)
+			);
+			fs::copy(&original_path, &backup_path)?;
+			Ok(Self {
+				original_path,
+				backup_path,
+				result_path: None,
+				original_size,
+				result_size: None,
+			})
+		} else {
+			Err(io::Error::new(io::ErrorKind::NotFound, t!("path-not-svg", path = original_path.display())))
 		}
+	}
 
-		match initialize_paths(original_paths, &temp_dir) {
-			Ok(paths) => {
-				Ok(Self { paths, temp_dir, auto_cleanup: true, })
-			}
+	pub fn apply_default_optimizations(&self, remove_fill: bool) -> io::Result<()> {
+		default_optimize(&self.original_path, remove_fill)
+	}
+
+	pub fn compress(&mut self) -> io::Result<()> {
+		self.result_path = Some(compress_to_svgz(&self.original_path)?);
+		Ok(())
+	}
+
+	pub fn calculate_result_size(&mut self) -> io::Result<()> {
+		if self.result_size != None {
+			return Ok(())
+		}
+		let path = self.result_path.as_deref().unwrap_or(&self.original_path);
+		self.result_size = Some(path.metadata()?.len());
+		Ok(())
+	}
+
+	pub fn restore(&self) -> io::Result<()> {
+		fs::copy(&self.backup_path, &self.original_path).map(|_| ())
+	}
+
+	pub fn original_path(&self) -> &Path {
+		&self.original_path
+	}
+
+	pub fn backup_path(&self) -> &Path {
+		&self.backup_path
+	}
+
+	pub fn result_path(&self) -> Option<&Path> {
+		self.result_path.as_deref()
+	}
+
+	pub fn original_size(&self) -> u64 {
+		self.original_size
+	}
+
+	pub fn result_size(&self) -> Option<u64> {
+		self.result_size
+	}
+}
+
+pub struct SvgFileGroup {
+	files: Vec<SvgFile>,
+	backup_dir: PathBuf,
+	auto_delete_backups: bool,
+}
+
+#[allow(dead_code)]
+impl SvgFileGroup {
+	pub fn new(paths: Vec<PathBuf>, auto_delete_backups: bool) -> io::Result<Self> {
+		let backup_dir = create_temp_dir()
+			.ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, t!("could-not-create-temporary-directory")))?;
+		fn initialize_files(paths: Vec<PathBuf>, backup_dir: &Path) -> io::Result<Vec<SvgFile>> {
+			paths.into_iter().map(|path| SvgFile::new(path, backup_dir)).collect()
+		}
+		match initialize_files(paths, &backup_dir) {
+			Ok(files) => Ok(Self {files, backup_dir, auto_delete_backups}),
 			Err(e) => {
-				if let Err(cleanup_error) = fs::remove_dir_all(&temp_dir) {
-					eprintln!("{}", t!("failed-to-delete-temp-dir", dir = temp_dir.display(), error = cleanup_error));
+				if let Err(cleanup_error) = fs::remove_dir_all(&backup_dir) {
+					eprintln!("{}", t!("failed-to-delete-temp-dir", dir = backup_dir.display(), error = cleanup_error));
 				}
 				Err(e)
 			}
 		}
 	}
 
-	pub fn copy_back(&self) -> io::Result<()> {
-		for (orig_path, temp_bak_path) in self.paths.iter() {
-			if let Some(parent) = temp_bak_path.parent() {
-				fs::create_dir_all(parent)?;
+	pub fn apply_default_optimizations(&self, remove_fill: bool) -> io::Result<()> {
+		for file in &self.files {
+			file.apply_default_optimizations(remove_fill)?
+		}
+		Ok(())
+	}
+
+	pub fn apply_svgo(&self, svgo_path: &Path) -> io::Result<()> {
+		run_svgo(self.files.iter().map(|f| f.original_path.as_path()), svgo_path)
+	}
+
+	pub fn compress(&mut self) -> io::Result<()> {
+		for file in &mut self.files {
+			file.compress()?
+		}
+		Ok(())
+	}
+
+	pub fn print_summary(&mut self) -> io::Result<()> {
+
+		let mut total_before: u64 = 0;
+		let mut total_after: u64 = 0;
+
+		let current_dir = env::current_dir().ok();
+
+		for file in &mut self.files {
+			file.calculate_result_size()?;
+
+			let original_size = file.original_size();
+			let result_size = file.result_size().unwrap();
+
+			total_before += original_size;
+			total_after += result_size;
+
+			let size_diff = original_size.saturating_sub(result_size);
+			let size_diff_percent = (size_diff as f64 / original_size as f64) * 100.0;
+
+			let original_path = file.original_path();
+			let result_path = file.result_path().unwrap_or(original_path);
+
+			let (relative_file, relative_final_path) = if let Some(ref dir) = current_dir {
+				(original_path.strip_prefix(dir).unwrap_or(original_path), result_path.strip_prefix(dir).unwrap_or(&result_path))
 			} else {
-				eprintln!("{}", t!("warning-could-not-get-parent-dir", path = temp_bak_path.display()));
-			}
-			if temp_bak_path.is_file() {
-				fs::copy(temp_bak_path, orig_path)?;
-			} else if temp_bak_path.is_dir() {
-				copy_dir(temp_bak_path, orig_path)?;
-			}
+				(original_path, result_path)
+			};
+
+			let file_name_display = if relative_final_path != relative_file {
+				format!("{} -> {}", relative_file.display(), relative_final_path.display())
+			} else {
+				relative_file.display().to_string()
+			};
+
+			let percent_str = if size_diff_percent > 0.0 && io::stdout().is_terminal() {
+				format!("\x1b[32m{:.2}%\x1b[0m", size_diff_percent) // Green
+			} else {
+				format!("{:.2}%", size_diff_percent)
+			};
+
+			println!("{file_name_display}:\n{original_size} - {percent_str} = {result_size} {}\n", t!("bytes"));
+		}
+
+		let total_diff = total_before.saturating_sub(total_after);
+		let total_diff_percent = (total_diff as f64 / total_before as f64) * 100.0;
+
+		let total_str = t!("total");
+		let bytes_str = t!("bytes");
+
+		println!("{total_str}: {total_before} -> {total_after} {bytes_str} (-{total_diff} {bytes_str}, -{:.2}%)", total_diff_percent);
+
+		Ok(())
+	}
+
+	pub fn restore_files(&self) -> io::Result<()> {
+		for file in &self.files {
+			file.restore()?;
 		}
 		Ok(())
 	}
 
-	fn orig_paths_iter(&self) -> impl Iterator<Item = &PathBuf> {
-		self.paths.iter().map(|(orig, _)| orig)
+	pub fn backup_dir(&self) -> &Path {
+		&self.backup_dir
 	}
 
-	fn temp_paths_iter(&self) -> impl Iterator<Item = &PathBuf> {
-		self.paths.iter().map(|(_, temp)| temp)
+	pub fn is_auto_delete_backups(&self) -> bool {
+		self.auto_delete_backups
 	}
 
-	pub fn temp_dir(&self) -> &PathBuf {
-		&self.temp_dir
+	pub fn enable_auto_delete_backups(&mut self) {
+		self.auto_delete_backups = true;
 	}
 
-	pub fn is_auto_cleanup(&self) -> bool {
-		self.auto_cleanup
+	pub fn disable_auto_delete_backups(&mut self) {
+		self.auto_delete_backups = false;
 	}
 
-	pub fn disable_auto_cleanup(&mut self) {
-		self.auto_cleanup = false
-	}
-
-	pub fn enable_auto_cleanup(&mut self) {
-		self.auto_cleanup = true
-	}
-
-	pub fn set_auto_cleanup(&mut self, auto_cleanup: bool) {
-		self.auto_cleanup = auto_cleanup
-	}
-
-	pub fn cleanup(&mut self) -> io::Result<()> {
-		if self.temp_dir.try_exists()? {
-			fs::remove_dir_all(&self.temp_dir)?;
+	pub fn delete_backups(&mut self) -> io::Result<()> {
+		if self.backup_dir.try_exists()? {
+			fs::remove_dir_all(&self.backup_dir)?;
 		}
 		Ok(())
 	}
 }
 
-impl Drop for TempBackupStorage {
+impl Drop for SvgFileGroup {
 	fn drop(&mut self) {
-		if self.auto_cleanup {
-			if let Err(e) = self.cleanup() {
-				eprintln!("{}", t!("failed-to-delete-temp-dir", dir = self.temp_dir.display(), error = e));
+		if self.auto_delete_backups {
+			if let Err(e) = self.delete_backups() {
+				eprintln!("{}", t!("failed-to-delete-backups-dir", dir = self.backup_dir.display(), error = e));
 			}
 		}
 	}
-}
-
-fn copy_dir(src: &PathBuf, dst: &PathBuf) -> io::Result<()> {
-	fs::create_dir_all(&dst)?;
-	for entry in fs::read_dir(src)? {
-		let entry = entry?;
-		let src_path = entry.path();
-		let dst_path = dst.join(entry.file_name());
-		if src_path.is_file() {
-			fs::copy(src_path, dst_path)?;
-		} else if src_path.is_dir() {
-			copy_dir(&src_path, &dst_path)?;
-		}
-	}
-	Ok(())
 }
 
 pub fn find_svg_files(paths: &[PathBuf], recursive: bool) -> io::Result<Vec<PathBuf>> {
 
-	fn find_append_svg_files(container: &mut HashSet<PathBuf>, path: &PathBuf, recursive: bool) -> io::Result<()> {
+	fn find_append_svg_files(container: &mut Vec<PathBuf>, path: &PathBuf, recursive: bool) -> io::Result<()> {
 		if path.is_file() {
 			if path.extension().and_then(|e| e.to_str()) == Some("svg") {
-				container.insert(path.clone());
+				container.push(path.clone());
 			}
 			return Ok(())
 		} else if !path.is_dir() {
@@ -214,12 +314,12 @@ pub fn find_svg_files(paths: &[PathBuf], recursive: bool) -> io::Result<Vec<Path
 		Ok(())
 	}
 
-	let mut svg_files = HashSet::new();
+	let mut svg_files = Vec::new();
 	for temp_path in paths {
 		find_append_svg_files(&mut svg_files, &temp_path, recursive)?;
 	}
-
-	let svg_files = svg_files.into_iter().collect();
+	svg_files.sort();
+	svg_files.dedup();
 
 	Ok(svg_files)
 }
@@ -237,23 +337,23 @@ mod tests {
 	fn test_generate_temp_dir_name() {
 		assert_ne!(generate_temp_dir_name(), generate_temp_dir_name());
 	}
-	
+
 	#[test]
 	#[allow(non_snake_case)]
-	fn test_TempBackupStorage() {
-		let temp_backup_storage = TempBackupStorage::new(&vec![]);
-		assert!(temp_backup_storage.is_ok());
-		let mut temp_backup_storage = temp_backup_storage.unwrap();
-		assert!(temp_backup_storage.temp_dir().exists());
-		assert!(temp_backup_storage.cleanup().is_ok());
-		assert!(!temp_backup_storage.temp_dir().exists());
+	fn test_SvgFileGroup() {
+		let svg_file_group = SvgFileGroup::new(vec![], true);
+		assert!(svg_file_group.is_ok());
+		let mut svg_file_group = svg_file_group.unwrap();
+		assert!(svg_file_group.backup_dir().exists());
+		assert!(svg_file_group.delete_backups().is_ok());
+		assert!(!svg_file_group.backup_dir().exists());
 
-		let temp_backup_storage = TempBackupStorage::new(&vec![]);
-		assert!(temp_backup_storage.is_ok());
-		let temp_backup_storage = temp_backup_storage.unwrap();
-		let temp_dir = temp_backup_storage.temp_dir().clone();
-		assert!(temp_dir.exists());
-		drop(temp_backup_storage);
-		assert!(!temp_dir.exists());
+		let svg_file_group = SvgFileGroup::new(vec![], true);
+		assert!(svg_file_group.is_ok());
+		let svg_file_group = svg_file_group.unwrap();
+		let backup_dir = svg_file_group.backup_dir().to_path_buf();
+		assert!(backup_dir.exists());
+		drop(svg_file_group);
+		assert!(!backup_dir.exists());
 	}
 }

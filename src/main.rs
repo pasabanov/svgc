@@ -14,7 +14,6 @@
 //! You should have received a copy of the GNU Affero General Public License
 //! along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -29,10 +28,7 @@ mod svgo;
 mod svgz;
 mod i18n;
 
-use default_opt::default_optimize_files;
-use files::TempBackupStorage;
-use svgo::run_svgo;
-use svgz::compress_to_svgz;
+use files::SvgFileGroup;
 use i18n::set_rust_i18n_locale;
 
 i18n!();
@@ -76,7 +72,7 @@ fn main() -> ExitCode {
 		.arg(Arg::new("help")       .short('h').long("help")       .help(&help_help[..])       .action(ArgAction::Help))
 		.get_matches();
 
-	let paths: Vec<PathBuf> =
+	let mut paths: Vec<PathBuf> =
 		matches
 			.get_many::<String>("paths")
 			.unwrap()
@@ -84,7 +80,7 @@ fn main() -> ExitCode {
 			.filter_map(|path| {
 				match fs::canonicalize(&path) {
 					Ok(canon) => {
-						if canon.is_dir() || canon.is_file() && canon.extension().unwrap_or_default().eq("svg") {
+						if canon.is_dir() || files::is_svg_file(&canon) {
 							Some(canon)
 						} else {
 							eprintln!("{}", t!("path-not-svg-or-dir", path = path.display()));
@@ -97,9 +93,11 @@ fn main() -> ExitCode {
 					}
 				}
 			})
-			.collect::<HashSet<PathBuf>>()
-			.into_iter()
 			.collect();
+	paths.sort();
+	paths.dedup();
+	let paths = paths;
+
 	let recursive = matches.get_flag("recursive");
 	let remove_fill = matches.get_flag("remove-fill");
 	let use_svgo = matches.get_flag("svgo");
@@ -141,8 +139,8 @@ fn main() -> ExitCode {
 		}
 	};
 
-	let mut backup_storage = match TempBackupStorage::new(&svg_files) {
-		Ok(storage) => storage,
+	let mut svg_file_group = match SvgFileGroup::new(svg_files, false) {
+		Ok(group) => group,
 		Err(e) => {
 			eprintln!("{}", t!("error-creating-temporary-backup-storage", error = e));
 			if !quiet { println!("{}", t!("your-files-were-not-modified")); }
@@ -150,48 +148,50 @@ fn main() -> ExitCode {
 		}
 	};
 
-	backup_storage.disable_auto_cleanup();
-
 	if !no_default {
-		if let Err(e) = default_optimize_files(&svg_files, remove_fill) {
+		if let Err(e) = svg_file_group.apply_default_optimizations(remove_fill) {
 			eprintln!("{}", t!("error-optimizing-files", error = e));
-			try_to_copy_back(&mut backup_storage, quiet);
+			try_to_restore(&mut svg_file_group, quiet);
 			return ExitCode::FAILURE
 		}
 	}
 
 	if use_svgo && svgo_path != None {
-		if let Err(e) = run_svgo(&svg_files, &svgo_path.unwrap()) {
+		if let Err(e) = svg_file_group.apply_svgo(&svgo_path.unwrap()) {
 			eprintln!("{}", t!("error-optimizing-files-with-svgo", error = e));
-			try_to_copy_back(&mut backup_storage, quiet);
+			try_to_restore(&mut svg_file_group, quiet);
 			return ExitCode::FAILURE
 		};
 	}
 
 	if compress_svgz {
-		if let Err(e) = compress_to_svgz(&svg_files) {
+		if let Err(e) = svg_file_group.compress() {
 			eprintln!("{}", t!("error-compressing-files", error = e));
-			try_to_copy_back(&mut backup_storage, quiet);
+			try_to_restore(&mut svg_file_group, quiet);
 			return ExitCode::FAILURE
 		}
 	}
-
-	backup_storage.enable_auto_cleanup();
 
 	if !quiet {
 		println!("{}", t!("files-successfully-compressed"));
 	}
 
+	if let Err(e) = svg_file_group.print_summary() {
+		eprintln!("{}", t!("error-printing-summary", error = e));
+	}
+
+	svg_file_group.enable_auto_delete_backups();
+
 	ExitCode::SUCCESS
 }
 
-fn try_to_copy_back(temp_storage: &mut TempBackupStorage, quiet: bool) {
-	if let Err(e) = temp_storage.copy_back() {
-		temp_storage.disable_auto_cleanup();
-		eprintln!("{}", t!("error-restoring-files", error = e, dir = temp_storage.temp_dir().display()));
+fn try_to_restore(temp_storage: &mut SvgFileGroup, quiet: bool) {
+	if let Err(e) = temp_storage.restore_files() {
+		temp_storage.disable_auto_delete_backups();
+		eprintln!("{}", t!("error-restoring-files", error = e, dir = temp_storage.backup_dir().display()));
 		return
 	} else {
-		temp_storage.enable_auto_cleanup();
+		temp_storage.enable_auto_delete_backups();
 	}
 	if !quiet {
 		println!("{}", t!("files-restored"));
