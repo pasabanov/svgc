@@ -128,8 +128,8 @@ where
 
 /// Sets the locale for the `rust_i18n` library.
 ///
-/// This function sets the locale used by the `rust_i18n` library to the best matching locale
-/// from the list of available locales, based on the system locale.
+/// This function sets the locale used by the `rust_i18n` library to the best matching locale from
+/// the list of available locales, based on the system locales.
 pub fn set_rust_i18n_locale() {
 	rust_i18n::set_locale(&best_matching_locale(rust_i18n::available_locales!().iter(), sys_locale::get_locales()).unwrap_or(DEFAULT_LOCALE.to_string()));
 }
