@@ -31,18 +31,18 @@ ru = '''
 В случае ошибки резервные копии оригинальных файлов будут сохранены.'''
 
 [version]
-en = '0.1.7'
-ru = '0.1.7'
+en = '0.1.8'
+ru = '0.1.8'
 
 [long-version]
 en = '''
-0.1.7
+0.1.8
 Copyright (C) 2024 Petr Alexandrovich Sabanov.
 License AGPLv3+: GNU AGPL version 3 or later <https://www.gnu.org/licenses/agpl.html>.
 This is free software: you are free to change and redistribute it under certain conditions.
 There is NO WARRANTY, to the extent permitted by law.'''
 ru = '''
-0.1.7
+0.1.8
 Авторское право (C) 2024 Пётр Александрович Сабанов.
 Лицензия AGPLv3+: GNU AGPL версии 3 или новее <https://www.gnu.org/licenses/agpl.html>.
 Это свободное ПО: вы можете изменять и распространять его при соблюдении определённых условий.
@@ -88,9 +88,13 @@ ru = 'Показать версию'
 en = 'Print help'
 ru = 'Показать помощь'
 
+[path-not-svg]
+en = 'The path "%{path}" is not an SVG file.'
+ru = 'Путь "%{path}" не является SVG файлом.'
+
 [path-not-svg-or-dir]
-en = 'The path "%{path}" is not a valid SVG file or directory.'
-ru = 'Путь "%{path}" не является действительным SVG файлом или директорией.'
+en = 'The path "%{path}" is not an SVG file or directory.'
+ru = 'Путь "%{path}" не является SVG файлом или директорией.'
 
 [path-not-exist-or-no-access]
 en = 'The path "%{path}" does not exist or cannot be accessed. Error: %{error}'
@@ -144,6 +148,14 @@ ru = "Ошибка восстановления файлов: %{error}.\nРез�
 en = 'Your files were restored.'
 ru = 'Ваши файлы восстановлены.'
 
+[total]
+en = 'Total'
+ru = 'Всего'
+
+[bytes]
+en = 'bytes'
+ru = 'байт'
+
 [could-not-create-temp-dir-in-dir]
 en = "Couldn't create a temporary directory in %{dir}.%{suffix}"
 ru = "Не удалось создать временную директорию в %{dir}.%{suffix}"
@@ -156,14 +168,14 @@ ru = 'Не удалось создать временную директорию
 en = 'Could not get file "%{path}" name'
 ru = 'Не удалось получить имя файла "%{path}"'
 
-[could-not-get-file-ext]
-en = 'Could not get file "%{path}" extension'
-ru = 'Не удалось получить расширение файла "%{path}"'
-
 [failed-to-delete-temp-dir]
 en = 'Failed to delete temporary directory %{dir}: %{error}'
 ru = 'Не удалось удалить временную директорию %{dir}: %{error}'
 
-[warning-could-not-get-parent-dir]
-en = 'Warning! Could not get parent directory of file %{path}'
-ru = 'Предупреждение! Не удалось получить родительскую директорию файла %{path}'
+[failed-to-delete-backups-dir]
+en = 'Failed to delete backups directory %{dir}: %{error}'
+ru = 'Не удалось удалить директорию с резервными копиями %{dir}: %{error}'
+
+[error-printing-summary]
+en = 'Error printing summary: %{error}'
+ru = 'Ошибка при выводе сводки: %{error}'

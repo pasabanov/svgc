@@ -17,12 +17,15 @@
 use std::fs;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+
 use flate2::{Compression, write::GzEncoder};
 
-fn compress_file_to_svgz(filepath: &Path) -> io::Result<()> {
-	let svgz_filepath = format!("{}z", filepath.display());
+pub fn compress_to_svgz(filepath: &Path) -> io::Result<PathBuf> {
+
 	let file = fs::File::open(filepath)?;
 	let reader = io::BufReader::new(file);
+
+	let svgz_filepath = filepath.with_extension("svgz");
 
 	let file = fs::File::create(&svgz_filepath)?;
 	let mut encoder = GzEncoder::new(file, Compression::best());
@@ -32,12 +35,5 @@ fn compress_file_to_svgz(filepath: &Path) -> io::Result<()> {
 
 	encoder.finish()?;
 	fs::remove_file(filepath)?;
-	Ok(())
-}
-
-pub fn compress_to_svgz(files: &[PathBuf]) -> io::Result<()> {
-	for file in files {
-		compress_file_to_svgz(file)?
-	}
-	Ok(())
+	Ok(svgz_filepath)
 }

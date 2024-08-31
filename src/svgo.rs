@@ -15,10 +15,10 @@
 //! along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::io;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process;
 
-pub fn run_svgo(svg_files: &Vec<PathBuf>, svgo_path: &PathBuf) -> io::Result<()> {
+pub fn run_svgo<'a>(svg_files: impl Iterator<Item = &'a Path>, svgo_path: &Path) -> io::Result<()> {
 	let mut command = process::Command::new(svgo_path);
 	command.args(&["-q"]).args(svg_files);
 	command.status()?;

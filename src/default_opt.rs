@@ -15,11 +15,12 @@
 //! along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::{fs, io};
-use std::path::{Path, PathBuf};
+use std::path::Path;
+
 use regex::Regex;
 use lazy_static::lazy_static;
 
-fn default_optimize(filepath: &Path, remove_fill: bool) -> io::Result<()> {
+pub fn default_optimize(filepath: &Path, remove_fill: bool) -> io::Result<()> {
 	let mut content = fs::read_to_string(filepath)?;
 
 	// Define regular expressions
@@ -53,11 +54,4 @@ fn default_optimize(filepath: &Path, remove_fill: bool) -> io::Result<()> {
 	}
 
 	fs::write(filepath, content)
-}
-
-pub fn default_optimize_files(files: &[PathBuf], remove_fill: bool) -> io::Result<()> {
-	for file in files {
-		default_optimize(file, remove_fill)?
-	}
-	Ok(())
 }
