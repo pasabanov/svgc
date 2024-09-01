@@ -173,11 +173,9 @@ fn main() -> ExitCode {
 	}
 
 	if !quiet {
-		println!("{}", t!("files-successfully-compressed"));
-	}
-
-	if let Err(e) = svg_file_group.print_summary() {
-		eprintln!("{}", t!("error-printing-summary", error = e));
+		if let Err(e) = svg_file_group.print_summary() {
+			eprintln!("{}", t!("error-printing-summary", error = e));
+		}
 	}
 
 	svg_file_group.enable_auto_delete_backups();

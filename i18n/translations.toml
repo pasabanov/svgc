@@ -136,10 +136,6 @@ ru = 'Ошибка при оптимизации файлов с помощью 
 en = 'Error compressing files to .svgz format: %{error}'
 ru = 'Ошибка при сжатии файлов в формат .svgz: %{error}'
 
-[files-successfully-compressed]
-en = 'Files were successfully compressed.'
-ru = 'Файлы успешно сжаты.'
-
 [error-restoring-files]
 en = "Error restoring files: %{error}.\nBackups are located in %{dir} directory."
 ru = "Ошибка восстановления файлов: %{error}.\nРезервные копии находятся в директории %{dir}."
