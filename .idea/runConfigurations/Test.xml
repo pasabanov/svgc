@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Debug" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
-    <option name="buildProfile" value="Dev" />
-    <option name="command" value="run --package svgc --bin svgc --profile dev" />
+  <configuration default="false" name="Test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
+    <option name="buildProfile" value="Test" />
+    <option name="command" value="test" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <envs />
     <option name="emulateTerminal" value="true" />
