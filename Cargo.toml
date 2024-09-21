@@ -7,11 +7,6 @@ description = "`svgc` (previously SvgCompress) is a tool for compressing SVG fil
 repository = "https://github.com/pasabanov/svgc"
 license = "AGPL-3.0-or-later"
 
-[package.metadata.i18n]
-available-locales = ["en", "ru"]
-default-locale = "en"
-load-path = "i18n"
-
 exclude = [
 	"/.github/",
 	"/.gitlab/",
@@ -28,6 +23,11 @@ exclude = [
 	"/.rustfmt.toml",
 	"/rustfmt.toml"
 ]
+
+[package.metadata.i18n]
+available-locales = ["en", "ru"]
+default-locale = "en"
+load-path = "i18n"
 
 [dependencies]
 chrono = "0.4.38"
