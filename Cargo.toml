@@ -8,6 +8,7 @@ repository = "https://github.com/pasabanov/svgc"
 license = "AGPL-3.0-or-later"
 
 exclude = [
+	"/.forgejo/",
 	"/.github/",
 	"/.gitlab/",
 	"/.idea/",
