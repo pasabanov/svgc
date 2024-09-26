@@ -205,6 +205,7 @@ mod tests {
 		assert_best_match(&["en-abcdefghijklmnopqrstuvwxyz"], &["en"], None);
 		assert_best_match(&["ru-ЖЖЯЯ"], &["ru"], None);
 		assert_best_match(&["ru--"], &["ru"], None);
+		assert_best_match(&[" en"], &["en"], None);
 		assert_best_match(&["", "@", "!!!", "721345"], &["en", "", "@", "!!!", "721345"], None);
 
 		// Repeating
