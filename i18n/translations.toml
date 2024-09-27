@@ -31,18 +31,18 @@ ru = '''
 В случае ошибки резервные копии оригинальных файлов будут сохранены.'''
 
 [version]
-en = '0.1.8'
-ru = '0.1.8'
+en = '0.1.9'
+ru = '0.1.9'
 
 [long-version]
 en = '''
-0.1.8
+0.1.9
 Copyright (C) 2024 Petr Alexandrovich Sabanov.
 License AGPLv3+: GNU AGPL version 3 or later <https://www.gnu.org/licenses/agpl.html>.
 This is free software: you are free to change and redistribute it under certain conditions.
 There is NO WARRANTY, to the extent permitted by law.'''
 ru = '''
-0.1.8
+0.1.9
 Авторское право (C) 2024 Пётр Александрович Сабанов.
 Лицензия AGPLv3+: GNU AGPL версии 3 или новее <https://www.gnu.org/licenses/agpl.html>.
 Это свободное ПО: вы можете изменять и распространять его при соблюдении определённых условий.
