@@ -91,7 +91,6 @@ const DEFAULT_LOCALE: &str = "en";
 /// // Empty extended language subtag in "zh-Hans" matches any extended language, e.g. "cmn"
 /// assert_eq!(best_match, Some("zh-cmn-Hans".to_string()));
 /// ```
-///
 fn best_matching_locale<T1, T2>(available_locales: impl Iterator<Item = T1>, user_locales: impl Iterator<Item = T2>) -> Option<String>
 where
 	T1: AsRef<str>,
