@@ -57,6 +57,9 @@ const DEFAULT_LOCALE: &str = "en";
 /// earlier in the list of available locales is chosen.  
 /// If no match is found, [`None`] is returned.
 ///
+/// The returned locale is guaranteed to EXACTLY match one of the available locales.  
+/// For example, `best_matching_locale(&["EN"].iter(), &["en"].iter())` will return `Some("EN")`.
+///
 /// # Examples
 ///
 /// ```
@@ -95,16 +98,16 @@ where
 	T2: AsRef<str>
 {
 	let available_tags = available_locales
-		.filter_map(|l| LanguageTag::parse(l.as_ref()).ok())
-		.collect::<Vec<LanguageTag>>();
+		.filter_map(|l| LanguageTag::parse(l.as_ref()).ok().map(|tag| (l, tag)))
+		.collect::<Vec<(T1,LanguageTag)>>();
 
 	user_locales
 		.filter_map(|locale| LanguageTag::parse(locale.as_ref()).ok())
 		.find_map(|user_tag|
 			available_tags.iter()
 				.rev() // For max_by_key to return the first tag with max score
-				.filter(|aval_tag| aval_tag.primary_language() == user_tag.primary_language())
-				.max_by_key(|aval_tag| {
+				.filter(|(_, aval_tag)| aval_tag.primary_language() == user_tag.primary_language())
+				.max_by_key(|(_, aval_tag)| {
 					let mut score = 0;
 					for (aval, user, weight) in [
 						(aval_tag.extended_language(), user_tag.extended_language(), 32),
@@ -123,7 +126,7 @@ where
 					score
 				})
 		)
-		.map(|aval_tag| aval_tag.to_string())
+		.map(|(aval_locale, _)| aval_locale.as_ref().to_string())
 }
 
 /// Sets the locale for the `rust_i18n` library.
@@ -224,5 +227,15 @@ mod tests {
 		assert_best_match(&["en-US", "ru-RU\x03"], &["ru", "en"], Some("en-US"));
 		assert_best_match(&["\0", "\x01\x02\x03\x04", "sq\0", "ru-RU", "sq-AL", "eu-ES"], &["en-US", "\x06", "en", "sq-XK", "sq", "\0"], Some("sq-AL"));
 		assert_best_match(&["en-US", "ru-RU\x03", "\x09\x09\x09\x09\x09", "\x0a\x09\x08\x07\x01\x00"], &["\x01", "\x02", "\x03", "\x04", "ru", "en"], Some("en-US"));
+
+		// Various letter cases
+		assert_best_match(&["EN"], &["en"], Some("EN"));
+		assert_best_match(&["En"], &["EN"], Some("En"));
+		assert_best_match(&["Ru-rU"], &["en", "ru"], Some("Ru-rU"));
+		assert_best_match(&["rU-rU"], &["en", "Ru"], Some("rU-rU"));
+		assert_best_match(&["zh", "zh-cmn", "zH-cMn-hANS-Sg"], &["zh-Hans"], Some("zH-cMn-hANS-Sg"));
+		assert_best_match(&["zh", "zh-cmn", "zH-cMn-hANS-Sg"], &["ZH-HANS"], Some("zH-cMn-hANS-Sg"));
+		assert_best_match(&["zh", "he-IL-u-ca-HEBREW-tz-Jeruslm-nu-LaTn"], &["he", "zh"], Some("he-IL-u-ca-HEBREW-tz-Jeruslm-nu-LaTn"));
+		assert_best_match(&["zh", "HE-il-u-cA-HeBrEw-tz-Jeruslm-nu-LaTN"], &["he", "zh"], Some("HE-il-u-cA-HeBrEw-tz-Jeruslm-nu-LaTN"));
 	}
 }
