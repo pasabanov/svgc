@@ -25,5 +25,5 @@ const DEFAULT_LOCALE: &str = "en";
 /// This function sets the locale used by the `rust_i18n` library to the best matching locale from
 /// the list of available locales, based on the system locales.
 pub fn set_rust_i18n_locale() {
-	rust_i18n::set_locale(&locale_match::bcp47::best_matching_locale(rust_i18n::available_locales!().iter(), sys_locale::get_locales()).unwrap_or(DEFAULT_LOCALE.to_string()));
+	rust_i18n::set_locale(locale_match::bcp47::best_matching_locale(rust_i18n::available_locales!(), sys_locale::get_locales()).unwrap_or(DEFAULT_LOCALE));
 }
