@@ -37,7 +37,7 @@ directories = "5.0.1"
 dirs = "5.0.1"
 flate2 = "1.0.31"
 lazy_static = "1.5.0"
-locale-match = { version = "0.2.0", default-features = false, features = ["bcp47"] }
+locale-match = { version = "0.2.1", default-features = false, features = ["bcp47"] }
 regex = "1.10.6"
 rust-i18n = "3.1.2"
 sys-locale = "0.3.1"
