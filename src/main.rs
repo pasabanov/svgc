@@ -1,18 +1,18 @@
-//! svgc is a tool for compressing SVG files
-//! Copyright (C) © 2024  Petr Alexandrovich Sabanov
-//!
-//! This program is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU Affero General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! This program is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU Affero General Public License for more details.
-//!
-//! You should have received a copy of the GNU Affero General Public License
-//! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// svgc is a tool for compressing SVG files
+// Copyright (C) © 2024  Petr Alexandrovich Sabanov
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::fs;
 use std::path::PathBuf;
@@ -42,14 +42,14 @@ fn main() -> ExitCode {
 		static ref long_version     : Cow<'static, str> = t!("long-version");
 		static ref paths_help       : Cow<'static, str> = t!("paths-help");
 		static ref paths_value_name : Cow<'static, str> = t!("paths-value-name");
-	    static ref recursive_help   : Cow<'static, str> = t!("recursive-help");
-	    static ref remove_fill_help : Cow<'static, str> = t!("remove-fill-help");
-	    static ref svgo_help        : Cow<'static, str> = t!("svgo-help");
-	    static ref svgz_help        : Cow<'static, str> = t!("svgz-help");
-	    static ref no_default_help  : Cow<'static, str> = t!("no-default-help");
-	    static ref quiet_help       : Cow<'static, str> = t!("quiet-help");
-	    static ref version_help     : Cow<'static, str> = t!("version-help");
-	    static ref help_help        : Cow<'static, str> = t!("help-help");
+		static ref recursive_help   : Cow<'static, str> = t!("recursive-help");
+		static ref remove_fill_help : Cow<'static, str> = t!("remove-fill-help");
+		static ref svgo_help        : Cow<'static, str> = t!("svgo-help");
+		static ref svgz_help        : Cow<'static, str> = t!("svgz-help");
+		static ref no_default_help  : Cow<'static, str> = t!("no-default-help");
+		static ref quiet_help       : Cow<'static, str> = t!("quiet-help");
+		static ref version_help     : Cow<'static, str> = t!("version-help");
+		static ref help_help        : Cow<'static, str> = t!("help-help");
 	}
 
 	let matches = Command::new("svgc")

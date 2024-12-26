@@ -41,7 +41,7 @@ locale-match = { version = "0.2.1", default-features = false, features = ["bcp47
 regex = "1.10.6"
 rust-i18n = "3.1.2"
 sys-locale = "0.3.1"
-which = "6.0.3"
+which = "7.0.1"
 
 [profile.dev]
 # Compilation
