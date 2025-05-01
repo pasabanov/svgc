@@ -2,7 +2,7 @@
 name = "svgc"
 version = "0.1.9"
 authors = ["Petr Aleksandrovich Sabanov pasabanov@murena.io"]
-edition = "2021"
+edition = "2024"
 description = "`svgc` (previously SvgCompress) is a tool for compressing SVG files by removing unnecessary whitespace, comments, metadata and some other data. It also supports optimization with SVGO and compression into SVGZ."
 repository = "https://github.com/pasabanov/svgc"
 license = "AGPL-3.0-or-later"
